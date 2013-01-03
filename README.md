@@ -1,2 +1,2 @@
-django-generate
-===============
+django-g
+========
