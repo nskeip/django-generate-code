@@ -1,3 +1,4 @@
+import os
 from django.core.management.base import BaseCommand
 
 
@@ -70,7 +71,15 @@ class Command(BaseCommand):
         >>> c = Command()
         >>> c.handle('model')
         Usage: g model <Appication.Model> <field:type> <field:type> ...
+        >>> c.handle('model', 'MyApp.MyModel', 'title:string', 'price:decimal', debug=True)
+        To myapp/models.py
+        class MyModel(models.Model):
+            title = models.CharField(min_length=255)
+            price = models.DecimalField(max_digits=9, decimal_places=2)
+        <BLANKLINE>
         """
+        debug = kwargs.get('debug', False)
+
         if generate_what == 'model':
             if not args:
                 print 'Usage: g model <Appication.Model> <field:type> <field:type> ...'
@@ -78,3 +87,19 @@ class Command(BaseCommand):
 
             module_descr = args[0]
             field_args = args[1:]
+
+            app_name, model_name = module_descr.split('.')
+            models_py_path = os.path.join(app_name.lower(), 'models.py')
+
+            if debug:
+                print 'To %s' % models_py_path
+
+            model_code = generate_model(model_name, *field_args)
+
+            if debug:
+                print model_code
+
+            if not debug:
+                models_file = open(models_py_path, 'a')
+                models_file.write('\n')
+                models_file.write(model_code)
