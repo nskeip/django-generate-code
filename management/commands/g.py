@@ -16,6 +16,11 @@ def generate_model(name, *fields):
     class MyModel(models.Model):
         pass
     <BLANKLINE>
+
+    >>> print generate_model('MyModel', 'foo:bar')
+    Traceback (most recent call last):
+    ...
+    KeyError: 'bar'
     """
     ret = "class %s(models.Model):\n" % name
 
