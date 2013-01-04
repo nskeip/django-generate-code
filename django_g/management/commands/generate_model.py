@@ -2,9 +2,9 @@ import os
 from django.core.management.base import BaseCommand
 
 
-def generate_model(name, *fields):
+def generate_model_code(name, *fields):
     """
-    >>> print generate_model('MyModel', 'title:string', \
+    >>> print generate_model_code('MyModel', 'title:string', \
         'rate:integer', 'price:decimal', 'description:text')
     class MyModel(models.Model):
         title = models.CharField(min_length=255)
@@ -13,12 +13,12 @@ def generate_model(name, *fields):
         description = models.TextField()
     <BLANKLINE>
 
-    >>> print generate_model('MyModel')
+    >>> print generate_model_code('MyModel')
     class MyModel(models.Model):
         pass
     <BLANKLINE>
 
-    >>> print generate_model('MyModel', 'foo:bar')
+    >>> print generate_model_code('MyModel', 'foo:bar')
     Traceback (most recent call last):
     ...
     KeyError: 'bar'
@@ -65,13 +65,12 @@ class Command(BaseCommand):
         description = models.TextField()
     """
     help = 'Generates useful code for you'
+    args = '<Appication.Model> <field:type> <field:type> ...'
 
-    def handle(self, generate_what, *args, **kwargs):
+    def handle(self, app_name, model_name, *args, **kwargs):
         """
         >>> c = Command()
-        >>> c.handle('model')
-        Usage: g model <Appication.Model> <field:type> <field:type> ...
-        >>> c.handle('model', 'MyApp.MyModel', 'title:string', 'price:decimal', debug=True)
+        >>> c.handle('MyApp', 'MyModel', 'title:string', 'price:decimal', debug=True)
         To myapp/models.py
         class MyModel(models.Model):
             title = models.CharField(min_length=255)
@@ -80,26 +79,21 @@ class Command(BaseCommand):
         """
         debug = kwargs.get('debug', False)
 
-        if generate_what == 'model':
-            if not args:
-                print 'Usage: g model <Appication.Model> <field:type> <field:type> ...'
-                return
+        if not args:
+            print 'Usage: generate_model <Appication> <Model> <field:type> <field:type> ...'
+            return
 
-            module_descr = args[0]
-            field_args = args[1:]
+        models_py_path = os.path.join(app_name.lower(), 'models.py')
 
-            app_name, model_name = module_descr.split('.')
-            models_py_path = os.path.join(app_name.lower(), 'models.py')
+        if debug:
+            print 'To %s' % models_py_path
 
-            if debug:
-                print 'To %s' % models_py_path
+        model_code = generate_model_code(model_name, *args)
 
-            model_code = generate_model(model_name, *field_args)
+        if debug:
+            print model_code
 
-            if debug:
-                print model_code
-
-            if not debug:
-                models_file = open(models_py_path, 'a')
-                models_file.write('\n')
-                models_file.write(model_code)
+        if not debug:
+            models_file = open(models_py_path, 'a')
+            models_file.write('\n')
+            models_file.write(model_code)
