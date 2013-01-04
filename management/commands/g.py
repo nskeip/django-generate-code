@@ -65,5 +65,16 @@ class Command(BaseCommand):
     """
     help = 'Generates useful code for you'
 
-    def handle(self, *args, **kwargs):
-        pass
+    def handle(self, generate_what, *args, **kwargs):
+        """
+        >>> c = Command()
+        >>> c.handle('model')
+        Usage: g model <Appication.Model> <field:type> <field:type> ...
+        """
+        if generate_what == 'model':
+            if not args:
+                print 'Usage: g model <Appication.Model> <field:type> <field:type> ...'
+                return
+
+            module_descr = args[0]
+            field_args = args[1:]
