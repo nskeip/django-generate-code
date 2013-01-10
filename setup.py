@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='django-generate-code',
-    version='0.1.2',
+    name='django_generate_code',
+    version='0.1.4',
     author='Nikita Hismatov',
     author_email='me@ns-keip.ru',
     url = 'http://github.com/nskeip/django-generate-code/',
@@ -10,4 +10,5 @@ setup(
                 'in your django projects straight from the '
                 'command line',
     packages=find_packages(),
+    zip_safe=False,
 )
